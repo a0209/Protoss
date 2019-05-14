@@ -45,12 +45,19 @@ class Cart extends Base {
 
   /**
    * 计算购物车内商品总数量
+   * flag true 考虑商品选择状态
    */
-  getCartTotalCounts() {
+  getCartTotalCounts(flag) {
     var data = this.getCartDataFromLocal();
     var counts = 0;
     for (let i = 0; i < data.length; i++) {
-      counts += data[i].counts;
+      if (flag) {
+        if (data[i].selectStatus) {
+          count += data[i].counts;
+        }
+      } else {
+        counts += data[i].counts;
+      }
     }
 
     return counts;

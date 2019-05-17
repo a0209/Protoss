@@ -32,6 +32,13 @@ class Cart extends Base {
   }
 
   /**
+   * 本地缓存 保存/更新
+   */
+  execSetStorageSync(data) {
+    wx.setStorageSync(this._storageKeyName, data);
+  }
+
+  /**
    * 从缓存中读取购物车数据
    */
   getCartDataFromLocal() {
@@ -84,6 +91,56 @@ class Cart extends Base {
     }
 
     return result;
+  }
+
+  /**
+   * 修改商品数量
+   * params:
+   * id - {int} 商品id
+   * counts - {int} 数量
+   */
+  _changeCounts(id, counts) {
+    var cartData = this.getCartDataFromLocal(),
+      hasInfo = this._isHasThatOne(id, cartData);
+    if (hasInfo.index != -1) {
+      if (hasInfo.data.counts > 1) {
+        cartData[hasInfo.index].counts += counts;
+      }
+    }
+    //更新本地缓存
+    wx.setStorageSync(this._storageKeyName, cartData);
+  }
+
+  /**
+   * 增加商品数量(购物车)
+   */
+  addCounts(id) {
+    this._changeCounts(id, 1);
+  }
+
+  /**
+   * 减少商品数量(购物车)
+   */
+  cutCounts(id) {
+    this._changeCounts(id, -1);
+  }
+
+  /**
+   * 购物车删除商品(可批量)
+   */
+  delete(ids) {
+    if (!(ids instanceof Array)) {
+      ids = [ids];
+    }
+    var cartData = this.getCartDataFromLocal();
+    for (let i = 0; i < ids.length; i++) {
+      var hasInfo = this._isHasThatOne(ids[i], cartData);
+      if (hasInfo.index != -1) {
+        cartData.splice(hasInfo.index, 1);
+      }
+    }
+
+    wx.setStorageSync(this._storageKeyName, cartData);
   }
 
 }

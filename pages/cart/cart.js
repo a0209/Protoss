@@ -19,6 +19,12 @@ Page({
 
   },
 
+  /**
+   * 离开操作
+   */
+  onHide:function(){
+    cart.execSetStorageSync(this.data.cartData);
+  },
 
   /**
    * 生命周期函数--监听页面显示
@@ -69,6 +75,92 @@ Page({
       selectedTypeCounts: selectedTypeCounts,
       account: account / (multiple * multiple)
     }
+  },
+
+  /**
+   *  单选
+   */
+  toggleSelect: function(event) {
+    var id = cart.getDataSet(event, 'id'),
+      status = cart.getDataSet(event, 'status'),
+      index = this._getProductIndexById(id);
+    this.data.cartData[index].selectStatus = !status;
+    this._resetCartData();
+
+  },
+
+  /**
+   * 重新计算总金额和商品总数
+   */
+  _resetCartData: function() {
+    var newData = this._calcTotalAccountAndCounts(this.data.cartData);
+    this.setData({
+      account: newData.account,
+      selectedCounts: newData.selectedCounts,
+      selectedTypeCounts: newData.selectedTypeCounts,
+      cartData: this.data.cartData
+    });
+  },
+
+  /**
+   * 全选按钮
+   */
+  toggleSelectAll: function(event) {
+    var status = cart.getDataSet(event, 'status') == 'true';
+
+    var data = this.data.cartData,
+      len = data.length;
+    for (let i = 0; i < len; i++) {
+      data[i].selectStatus = !status;
+    }
+    this._resetCartData();
+  },
+
+  /** 
+   * 根据商品id得到商品所在下标
+   */
+  _getProductIndexById: function(id) {
+    var data = this.data.cartData,
+      len = data.length;
+    for (let i = 0; i < len; i++) {
+      if (data[i].id == id) {
+        return i;
+      }
+    }
+  },
+
+  /**
+   * 加减单个商品数量
+   */
+  changeCounts: function(event) {
+    var id = cart.getDataSet(event, 'id'),
+      type = cart.getDataSet(event, 'type'),
+      index = this._getProductIndexById(id),
+      counts = 1;
+
+    if (type == 'add') {
+      cart.addCounts(id);
+    } else {
+      counts = -1;
+      cart.cutCounts(id);
+    }
+
+    this.data.cartData[index].counts += counts;
+    this._resetCartData();
+  },
+
+  /**
+   * 删除商品
+   */
+  delete: function(event) {
+    var id = cart.getDataSet(event, 'id'),
+      index = this._getProductIndexById(id);
+
+    //删除某一项商品
+    this.data.cartData.splice(index, 1);
+
+    this._resetCartData();
+    cart.delete(id);
   }
 
 })

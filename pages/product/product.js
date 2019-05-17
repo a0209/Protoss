@@ -33,7 +33,7 @@ Page({
   _loadData: function() {
     product.getDetailInfo(this.data.id, (data) => {
       this.setData({
-        cartTotalCounts:cart.getCartTotalCounts(),
+        cartTotalCounts: cart.getCartTotalCounts(),
         product: data
       });
     });
@@ -68,7 +68,7 @@ Page({
     this.addToCart();
     var counts = this.data.cartTotalCounts + this.data.productCount;
     this.setData({
-      cartTotalCounts:counts,
+      cartTotalCounts: counts,
     });
   },
 
@@ -82,6 +82,15 @@ Page({
     }
 
     cart.add(tempObj, this.data.productCount);
+  },
+
+  /**
+   * 跳转购物车
+   */
+  onCartTap: function(event) {
+    wx.switchTab({
+      url: '/pages/cart/cart',
+    });
   }
 
 })

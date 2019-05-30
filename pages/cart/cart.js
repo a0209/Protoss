@@ -22,7 +22,7 @@ Page({
   /**
    * 离开操作
    */
-  onHide:function(){
+  onHide: function() {
     cart.execSetStorageSync(this.data.cartData);
   },
 
@@ -161,6 +161,15 @@ Page({
 
     this._resetCartData();
     cart.delete(id);
+  },
+
+  /**
+   * 下单
+   */
+  submitOrder: function(event) {
+    wx.navigateTo({
+      url: '../order/order?account=' + this.data.account + '&from=cart',
+    });
   }
 
 })

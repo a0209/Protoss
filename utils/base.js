@@ -1,13 +1,18 @@
 import {
   Config
-} from '../utils/config.js';
+} from 'config.js';
+import {
+  Token
+} from 'token.js';
 
 class Base {
   constructor() {
     this.baseRequestUrl = Config.restUrl;
   }
 
-  request(params) {
+  // 当noRefetch为true, 不做未授权重试机制
+  request(params, noRefetch) {
+    var that = this;
     var url = this.baseRequestUrl + params.url;
 
     if (!params.type) {
@@ -31,12 +36,35 @@ class Base {
         //   params.sCallBack(res);
         // }
 
-        //与上面等同
-        params.sCallback && params.sCallback(res.data);
+        var code = res.statusCode.toString();
+        var startChar = code.charAt(0);
+
+        if (startChar == '2') {
+          //与上面等同
+          params.sCallback && params.sCallback(res.data);
+        } else {
+          if (code == '401') {
+            // token.getTokenFromServer
+            // base.request
+            if (!noRefetch) {
+              that._refetch(params);
+            }
+          }
+          if(noRefetch){
+            params.eCallback && params.eCallback(res.data);
+          }
+        }
       },
       fail: function(err) {
         console.log(err);
       }
+    });
+  }
+
+  _refetch(params) {
+    var token = new Token();
+    token.getTokenFromServer((token) => {
+      this.request(params, true);
     });
   }
 

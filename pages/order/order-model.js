@@ -99,7 +99,16 @@ class Order extends Base {
   // 本地缓存 保存/更新
   execSetStorageSync(data) {
     wx.setStorageSync(this._storageKeyName, data);
-  };
+  }
+
+  /**
+   * 是否有新的订单, 有的话, 点击到[我的]自动刷新
+   */
+  hasNewOrder(){
+    var flag = wx.getStorageSync(this._storageKeyName);
+    
+    return flag == true;
+  }
 
 }
 
